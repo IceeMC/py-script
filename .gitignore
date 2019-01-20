@@ -1,0 +1,3 @@
+test/scripts/__pycache
+node_modules
+temp_*.py

@@ -1,0 +1,9 @@
+{
+    "compilerOptions": {
+        "module": "commonjs",
+        "outDir": "./out",
+        "rootDir": "./src",
+        "target": "esnext",
+        "lib": ["es2018"]
+    }
+}

@@ -1,0 +1,29 @@
+{
+  "name": "py-script",
+  "version": "1.0.0",
+  "description": "",
+  "main": "out/index.js",
+  "directories": {
+    "test": "tests"
+  },
+  "types": "src/typings/index.d.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/IceeMC/py-script.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/IceeMC/py-script/issues"
+  },
+  "homepage": "https://github.com/IceeMC/py-script#readme",
+  "devDependencies": {
+    "@types/node": "^10.12.18"
+  },
+  "dependencies": {
+    "python-shell": "^1.0.7"
+  }
+}
