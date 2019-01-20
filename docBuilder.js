@@ -50,7 +50,8 @@ Docma
                     }
                 ]
             }
-        }
+        },
+        clean: true
     })
     .then(() => console.log("Documentation successfully built."))
     .catch(console.error);
