@@ -11,6 +11,14 @@ const splitter = new RegExp(os_1.EOL, "g");
  * @extends {EventEmitter}
  */
 class Script extends events_1.EventEmitter {
+    /**
+     * Represents a script that was created using the manager instance.
+     * @param {string} path The script path.
+     * @param {ScriptOptions} rawOptions The raw options object.
+     * @param {ScriptOptions} options The options object (merged.)
+     * @param {Manager} manager The manager who created this class.
+     * @param {boolean} [tempScript=false] If the script is temporary.
+     */
     constructor(path, rawOptions, options, manager, tempScript = false) {
         super();
         /**
@@ -106,6 +114,7 @@ class Script extends events_1.EventEmitter {
     /**
      * Handles a message internally.
      * @param {string | Buffer} data The data chunk
+     * @private
      */
     handleMessage(data) {
         let splits = data.toString().split(splitter);
@@ -128,6 +137,7 @@ class Script extends events_1.EventEmitter {
     /**
      * Handles a error internally (emitting the message event.)
      * @param {string | Buffer} data The data chunk.
+     * @private
      */
     handleError(data) {
         let splits = data.toString().split(splitter);
