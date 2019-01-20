@@ -9,19 +9,64 @@ import { rejects } from "assert";
 const writeFileAsync = promisify(writeFile);
 const unlinkAsync = promisify(unlink);
 
+/**
+ * A class for running scripts, running code, etc.
+ * @example
+ * const { Manager } = require("py-script");
+ * const manager = new Manager();
+ * ...
+ */
 class Manager {
 
+    /**
+     * @typedef {object} ManagerOptions
+     * @property {string} [basePath] The path where scripts are executed from.
+     * @property {string[]} [globalArgs] Global python command-line argument.
+     * @property {string} [parser] The parser used to parse incoming messages.
+     */
+
+    /**
+     * @typedef {object} ScriptOptions
+     * @property {string} [basePath] The path where the script will be executed from.
+     * @property {string[]} [args] Optional command line arguments.
+     * @property {string} [parser] The optional parser used to parse incoming messages (this overwrites the default parser, if set.)
+     */
+
+    /**
+     * @typedef {object} ScriptResult
+     * @property {any[]} results An array of parsed messages.
+     * @property {ScriptError[]} errors An array of errors that occurred when executing the script.
+     */
+
+    /**
+     * A current array of scripts (so you can keep track of them.)
+     * @type {Array<Script>}
+     */
     public options: ManagerOptions = {
         basePath: process.cwd(),
         globalArgs: ["-u"],
         parser: "raw"
     };
+
+    /**
+     * The default options for Script instances.
+     * @type {ScriptOptions}
+     */
     public scriptOptions: ScriptOptions = {
         basePath: process.cwd(),
         args: [],
         parser: "raw"
     };
-    public scripts: Script[];
+
+    /**
+     * A current array of scripts (so you can keep track of them.)
+     * @type {Array<Script>}
+     */
+    public scripts: Script[] = null;
+
+    /**
+     * @param {ManagerOptions} opts Options for the manager
+     */
     public constructor(opts?: ManagerOptions) {
         this.scripts = [];
         this.options = opts && typeof opts === "object" ?
@@ -29,6 +74,12 @@ class Manager {
             this.options;
     }
 
+    /**
+     * Runs a file with the provided path and options.
+     * @param {string} path The path of the script (joined with the base path.)
+     * @param {ScriptOptions} options Options for the script.
+     * @returns {Script}
+     */
     public runFile(path: string, options?: ScriptOptions): Script {
         if (!path) throw new Error("A script path must be provided.");
         const sOptions: ScriptOptions = options && typeof options === "object" ?
@@ -39,6 +90,16 @@ class Manager {
         return script;
     }
 
+    /**
+     * Runs code with the optional options.
+     * @param {string} code The code to run.
+     * @param {ScriptOptions} [options] The options for the script.
+     * @example
+     * // I'm assuming you have already defined the manager
+     * const { results } = await manager.runCode("print(1)");
+     * console.log(results[0]);
+     * @returns {Promise<ScriptResult>}
+     */
     public runCode(code: string, options?: ScriptOptions): Promise<ScriptResult> {
         return new Promise(async (resolve, reject) => {
             const file = await createTempFile(code || "").catch(() => reject("Missing directory access."));
@@ -59,6 +120,11 @@ class Manager {
 
 }
 
+/**
+ * Merges an object with another object.
+ * @param {any} def The default object.
+ * @param {any} mergeWith The object to merge with.
+ */
 export function merge(def, mergeWith) {
     const obj = {};
     for (let key in def) {

@@ -25,11 +25,11 @@ declare module "py-script" {
         private manager: Manager;
         public options: ScriptOptions;
         public path: string;
-        public cProc: ChildProcess;
+        private cProc: ChildProcess;
         public running: boolean;
         public tempScript: boolean;
         private _data: string;
-        public parser: (message: string) => any;
+        private parser: (message: string) => any;
 
         public on(event: string, listener: Function): this;
         public on(event: "nessage", listener: (message) => void): this;
@@ -42,8 +42,8 @@ declare module "py-script" {
         public command: string;
         public args: string;
 
-        public handleMessage(data: string | Buffer): void;
-        public handleError(data: string | Buffer): void;
+        private handleMessage(data: string | Buffer): void;
+        private handleError(data: string | Buffer): void;
         public exit(): this;
     }
 

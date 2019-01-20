@@ -7,21 +7,70 @@ import ScriptError from "./ScriptError";
 
 const splitter = new RegExp(EOL, "g");
 
+/**
+ * Represents a script.
+ * @extends {EventEmitter}
+ */
 class Script extends EventEmitter {
 
-    private manager: Manager;
-    public rawOptions: ScriptOptions;
-    public options: ScriptOptions;
-    public path: string;
-    public basePath: string;
-    public cProc: ChildProcess;
+    /**
+     * The manager that was used when creating the instance.
+     * @private
+     * @type {Manager}
+     */
+    private manager: Manager = null;
+    
+    /**
+     * The options when the script was initialized.
+     * @type {ScriptOptions}
+     */
+    public options: ScriptOptions = null;
+    
+    /**
+     * The path to the file.
+     * @type {string}
+     */
+    public path: string = null;
+    
+    /**
+     * The base path used.
+     */
+    public basePath: string = null;
+    
+    /**
+     * The ChildProcess instance.
+     * @type {ChildProcess}
+     * @private
+     */
+    private cProc: ChildProcess = null;
+    
+    /**
+     * A boolean determining if the script is running.
+     * @type {boolean}
+     */
     public running: boolean = true;
+    
+    /**
+     * If the script is temporary (invoked by Manager#runCode)
+     */
     public tempScript: boolean = false;
+    
+    /**
+     * The received data chunks as a string (resets every so often).
+     * @type {string}
+     * @private
+     */
     private _data: string = "";
-    public parser: (message: string) => any;
+
+    /**
+     * The data parser.
+     * @type {Function<any>}
+     */
+    private parser: (message: string) => any;
 
     public constructor(path: string, rawOptions: ScriptOptions, options: ScriptOptions, manager: Manager, tempScript: boolean = false) {
         super();
+        this.tempScript = tempScript;
         if (!parsers[rawOptions.parser || options.parser] || !parsers[rawOptions.parser || manager.options.parser])
             throw new Error(`Unknown parser: ${options.parser}`);
         if (rawOptions.parser) { // Overwritten
@@ -43,22 +92,39 @@ class Script extends EventEmitter {
         this.cProc.stderr.on("data", this.handleError.bind(this));
         this.cProc.on("exit", (code, signal) => {
             this.running = false;
+            /**
+             * Emitted when the child process exited.
+             * @param {number} code The exit code.
+             * @param {string?} signal The exit signal.
+             */
             this.emit("exit", code, signal);
         });
     }
 
+    /**
+     * The command to use.
+     * @type {string}
+     */
     public get command() {
         return process.platform !== "win32" ? "python3" : "python";
     }
 
+    /**
+     * The ChildProcesses spawn args.
+     * @type {string[]}
+     */
     public get args() {
-        const bp = this.tempScript ?
+        const bp = !this.tempScript ?
             this.basePath.endsWith("/") ? this.basePath : `${this.basePath}/` :
             "";
         return [`${bp}${this.path}`, ...this.manager.options.globalArgs, ...this.options.args];
     }
 
-    public handleMessage(data: string | Buffer) {
+    /**
+     * Handles a message internally.
+     * @param {string | Buffer} data The data chunk
+     */
+    private handleMessage(data: string | Buffer) {
         let splits = data.toString().split(splitter);
         if (splits.length === 1) { // Incomplete data
             this._data += splits[0];
@@ -68,11 +134,20 @@ class Script extends EventEmitter {
         splits[0] = this._data + splits[0];
         this._data = last;
         for (const split of splits) {
+            /**
+             * Emitted when a message is received.
+             * @event Script#message
+             * @param {any} message The parsed message.
+             */
             this.emit("message", this.parser(split));
         }
     }
 
-    public handleError(data: string | Buffer) {
+    /**
+     * Handles a error internally (emitting the message event.)
+     * @param {string | Buffer} data The data chunk.
+     */
+    private handleError(data: string | Buffer) {
         let splits = data.toString().split(splitter);
         if (splits.length === 1) { // Incomplete data
             this._data += splits[0];
@@ -93,9 +168,18 @@ class Script extends EventEmitter {
             error.stack += `${EOL}    ---- ${err ? err.split(":")[0] : "Error"} ----    ${EOL}  `;
             error.stack += splits.join(`${EOL}  `);
         }
+        /**
+         * Emitted when an error occurs.
+         * @event Script#error
+         * @param {ScriptError} error The error that was encountered.
+         */
         this.emit("error", error);
     }
 
+    /**
+     * Starts the exit sequence, and returns the script.
+     * @returns {Script}
+     */
     public exit(): Script {
         this.cProc.kill("SIGTERM");
         this.running = false;
