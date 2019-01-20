@@ -10,8 +10,11 @@ Docma
         ],
         app: {
             title: "py-script documentation",
-            base: "/"
+            base: "/py-script",
+            routing: "query",
+            server: Docma.ServerType.GITHUB
         },
         dest: "./docs"
     })
+    .then(() => console.log("Documentation successfully built."))
     .catch(console.error);
