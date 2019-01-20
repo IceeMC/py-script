@@ -10,33 +10,33 @@ const writeFileAsync = promisify(writeFile);
 const unlinkAsync = promisify(unlink);
 
 /**
+ * @typedef {object} ManagerOptions
+ * @property {string} [basePath] The path where scripts are executed from.
+ * @property {string[]} [globalArgs] Global python command-line argument.
+ * @property {string} [parser] The parser used to parse incoming messages.
+ */
+
+/**
+ * @typedef {object} ScriptOptions
+ * @property {string} [basePath] The path where the script will be executed from.
+ * @property {string[]} [args] Optional command line arguments.
+ * @property {string} [parser] The optional parser used to parse incoming messages (this overwrites the default parser, if set.)
+ */
+
+/**
+ * @typedef {object} ScriptResult
+ * @property {any[]} results An array of parsed messages.
+ * @property {ScriptError[]} errors An array of errors that occurred when executing the script.
+ */
+
+/**
  * A class for running scripts, running code, etc.
  * @example
  * const { Manager } = require("py-script");
  * const manager = new Manager();
- * ...
+ * // Do something with the manager instance below.
  */
 class Manager {
-
-    /**
-     * @typedef {object} ManagerOptions
-     * @property {string} [basePath] The path where scripts are executed from.
-     * @property {string[]} [globalArgs] Global python command-line argument.
-     * @property {string} [parser] The parser used to parse incoming messages.
-     */
-
-    /**
-     * @typedef {object} ScriptOptions
-     * @property {string} [basePath] The path where the script will be executed from.
-     * @property {string[]} [args] Optional command line arguments.
-     * @property {string} [parser] The optional parser used to parse incoming messages (this overwrites the default parser, if set.)
-     */
-
-    /**
-     * @typedef {object} ScriptResult
-     * @property {any[]} results An array of parsed messages.
-     * @property {ScriptError[]} errors An array of errors that occurred when executing the script.
-     */
 
     /**
      * A current array of scripts (so you can keep track of them.)
@@ -95,7 +95,7 @@ class Manager {
      * @param {string} code The code to run.
      * @param {ScriptOptions} [options] The options for the script.
      * @example
-     * // I'm assuming you have already defined the manager
+     * // This example assumes you have already defined the manager.
      * const { results } = await manager.runCode("print(1)");
      * console.log(results[0]);
      * @returns {Promise<ScriptResult>}
@@ -124,6 +124,7 @@ class Manager {
  * Merges an object with another object.
  * @param {any} def The default object.
  * @param {any} mergeWith The object to merge with.
+ * @returns {any}
  */
 export function merge(def, mergeWith) {
     const obj = {};
@@ -156,4 +157,4 @@ export type ScriptResult = {
     errors: ScriptError[]
 }
 
-export default Manager
+export default Manager;

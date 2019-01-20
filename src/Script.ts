@@ -68,6 +68,14 @@ class Script extends EventEmitter {
      */
     private parser: (message: string) => any;
 
+    /**
+     * Represents a script that was created using the manager instance.
+     * @param {string} path The script path.
+     * @param {ScriptOptions} rawOptions The raw options object.
+     * @param {ScriptOptions} options The options object (merged.)
+     * @param {Manager} manager The manager who created this class.
+     * @param {boolean} [tempScript=false] If the script is temporary.
+     */
     public constructor(path: string, rawOptions: ScriptOptions, options: ScriptOptions, manager: Manager, tempScript: boolean = false) {
         super();
         this.tempScript = tempScript;
@@ -123,6 +131,7 @@ class Script extends EventEmitter {
     /**
      * Handles a message internally.
      * @param {string | Buffer} data The data chunk
+     * @private
      */
     private handleMessage(data: string | Buffer) {
         let splits = data.toString().split(splitter);
@@ -146,6 +155,7 @@ class Script extends EventEmitter {
     /**
      * Handles a error internally (emitting the message event.)
      * @param {string | Buffer} data The data chunk.
+     * @private
      */
     private handleError(data: string | Buffer) {
         let splits = data.toString().split(splitter);

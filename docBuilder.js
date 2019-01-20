@@ -14,7 +14,43 @@ Docma
             routing: "query",
             server: Docma.ServerType.GITHUB
         },
-        dest: "./docs"
+        dest: "./docs",
+        template: {
+            path: "zebra",
+            options: {
+                title: {
+                    label: "PyScript Docs",
+                    href: "."
+                },
+                navbar: {
+
+                }
+            },
+            sidebar: {
+                enabled: true,
+                outline: "tree",
+                collapsed: false,
+                toolbar: true,
+                itemsFolded: false,
+                itemsOverflow: "crop",
+                badges: true,
+                search: true,
+                animations: true
+            },
+            navbar: {
+                enabled: true,
+                fixed: true,
+                dark: true,
+                menu: [
+                   {
+                        label: "GitHub",
+                        iconClass: "fab fa-github",
+                        href: "https://github.com/user/repo",
+                        target: "_blank"
+                    }
+                ]
+            }
+        }
     })
     .then(() => console.log("Documentation successfully built."))
     .catch(console.error);
